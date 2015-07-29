@@ -69,52 +69,36 @@
 # -U memtype:op:filename:filefmt = 
 #   -U flash:w:arduino_blink.hex
 #
+cmake_minimum_required(VERSION 2.6)
 
+set(CMAKE_C_COMPILER_WORKS TRUE)
+set(CMAKE_CXX_COMPILER_WORKS TRUE)
 set(CMAKE_SYSTEM_NAME Generic)
-set(CMAKE_SYSTEM_PROCESSOR avr)
-set(CMAKE_CROSSCOMPILING 1)
-set(CMAKE_C_COMPILER "/usr/bin/avr-gcc")
-set(CMAKE_CXX_COMPILER "/usr/bin/avr-g++")
+set(CMAKE_CROSSCOMPILING TRUE)
+set(CMAKE_C_COMPILER "avr-gcc")
+set(CMAKE_CXX_COMPILER "avr-g++")
 
-option(build_uno        "Create files for Arduino Uno." off)
-option(build_zero       "Create files for Arduino Zero." off)
-option(build_mega_2560  "Create files for Arduino Mega 2560." off)
+project(arduino_blink)
 
-set(targets_to_build    "Building files for:")
-set(path_to_uno "/dev/ttyUSB0" CACHE TYPE STRING)
-set(build_dir_uno       "arduino_uno")
-#set(build_dir_zero      "arduino_zero")
-#set(build_dir_mega_2560 "arduino_mega_2560")
+set(arduino_sources arduino_blink.c)
 
-if(build_uno)
-    # Add a line for printing that Arduino Uno is being built.
-    set(targets_to_build "${targets_to_build} \n  --Arduino Uno")
+# Store the original values of CMAKE_C_OPTIONS
+#set(EXECUTABLE_OUTPUT_PATH_ORIG ${EXECUTABLE_OUTPUT_PATH})
+#set(LIBRARY_OUTPUT_PATH_ORIG ${LIBRARY_OUTPUT_PATH})
+#set(CMAKE_C_OPTIONS_ORIG ${CMAKE_C_OPTIONS})
 
-    # Store the original values of CMAKE_C_OPTIONS
-    #set(EXECUTABLE_OUTPUT_PATH_ORIG ${EXECUTABLE_OUTPUT_PATH})
-    #set(LIBRARY_OUTPUT_PATH_ORIG ${LIBRARY_OUTPUT_PATH})
-    #set(CMAKE_C_OPTIONS_ORIG ${CMAKE_C_OPTIONS})
+# Make a build directory for Arduino Uno and set to build there.
+#file(MAKE_DIRECTORY ${build_dir_uno})
+#set(EXECUTABLE_OUTPUT_PATH "${PROJECT_BINARY_DIR}/${build_dir_uno}")
+#set(LIBRARY_OUTPUT_PATH "${PROJECT_BINARY_DIR}/${build_dir_uno}")
+set(output_name_uno "${PROJECT_NAME}_uno")
+set(CMAKE_C_FLAGS "-Os -DF_CPU=16000000UL -mmcu=atmega328p")
+set(CMAKE_SHARED_LIBRARY_LINK_C_FLAGS "")
+set(CMAKE_SHARED_LIBRARY_LINK_CXX_FLAGS "")
+add_executable(${output_name_uno} ${arduino_sources})
 
-    # Make a build directory for Arduino Uno and set to build there.
-    #file(MAKE_DIRECTORY ${build_dir_uno})
-    #set(EXECUTABLE_OUTPUT_PATH "${PROJECT_BINARY_DIR}/${build_dir_uno}")
-    #set(LIBRARY_OUTPUT_PATH "${PROJECT_BINARY_DIR}/${build_dir_uno}")
-    #set(output_name_uno "${PROJECT_NAME}_uno")
-    #set(CMAKE_CXX_OPTIONS "-std=c99 -Os -DF_CPU=16000000UL -mmcu=atmega328p")
-    #add_library(${output_name_uno}.o STATIC ${arduino_sources})
-    #target_compile_options(${output_name_uno}.o -Os -DF_CPU=16000000UL -mmcu=atmega328p)
-endif()
+add_custom_command(TARGET ${output_name_uno} POST_BUILD
+                   COMMAND avr-objcopy -O ihex -R .eeprom ${output_name_uno} ${output_name_uno}.hex)
 
-# if(build_zero)
-#     set(targets_to_build "${targets_to_build} \n  --Arduino Zero")
-#     set(output_name_zero "${PROJECT_NAME}_zero")
-#     file(MAKE_DIRECTORY ${build_dir_zero})
-# endif()
-# 
-# if(build_mega_2560)
-#     set(targets_to_build "${targets_to_build} \n  --Arduino Mega 2560")
-#     set(output_name_mega_2560 "${PROJECT_NAME}_mega_2560")
-#     file(MAKE_DIRECTORY ${build_dir_mega_2560})
-# endif()
-
-message(${targets_to_build})
+add_custom_target(install_${output_name_uno}
+                  COMMAND avrdude -F -V -c arduino -p ATMEGA328P -P /dev/ttyACM0 -b 115200 -U flash:w:${output_name_uno}.hex)
