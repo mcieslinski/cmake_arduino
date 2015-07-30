@@ -71,16 +71,16 @@
 #
 cmake_minimum_required(VERSION 2.6)
 
-set(CMAKE_C_COMPILER_WORKS TRUE)
-set(CMAKE_CXX_COMPILER_WORKS TRUE)
-set(CMAKE_SYSTEM_NAME Generic)
+#set(CMAKE_C_COMPILER_WORKS TRUE)
+#set(CMAKE_CXX_COMPILER_WORKS TRUE)
+#set(CMAKE_SYSTEM_NAME Generic)
 # Look up CMake "toolchain file"
-set(CMAKE_CROSSCOMPILING TRUE)
-set(CMAKE_C_COMPILER "avr-gcc")
-set(CMAKE_CXX_COMPILER "avr-g++")
+#set(CMAKE_CROSSCOMPILING TRUE)
+#set(CMAKE_C_COMPILER "avr-gcc")
+#set(CMAKE_CXX_COMPILER "avr-g++")
 
 project(arduino_blink)
-
+set(~/cmake_arduino/cmake_modules/arduino_toolchain.cmake)
 set(arduino_sources arduino_blink.c)
 
 # Store the original values of CMAKE_C_OPTIONS

@@ -70,12 +70,6 @@
 #   -U flash:w:arduino_blink.hex
 #
 
-set(CMAKE_SYSTEM_NAME Generic)
-set(CMAKE_SYSTEM_PROCESSOR avr)
-set(CMAKE_CROSSCOMPILING 1)
-set(CMAKE_C_COMPILER "/usr/bin/avr-gcc")
-set(CMAKE_CXX_COMPILER "/usr/bin/avr-g++")
-
 option(build_uno        "Create files for Arduino Uno." off)
 option(build_zero       "Create files for Arduino Zero." off)
 option(build_mega_2560  "Create files for Arduino Mega 2560." off)
@@ -90,10 +84,6 @@ if(build_uno)
     # Add a line for printing that Arduino Uno is being built.
     set(targets_to_build "${targets_to_build} \n  --Arduino Uno")
 
-    # Store the original values of CMAKE_C_OPTIONS
-    #set(EXECUTABLE_OUTPUT_PATH_ORIG ${EXECUTABLE_OUTPUT_PATH})
-    #set(LIBRARY_OUTPUT_PATH_ORIG ${LIBRARY_OUTPUT_PATH})
-    #set(CMAKE_C_OPTIONS_ORIG ${CMAKE_C_OPTIONS})
 
     # Make a build directory for Arduino Uno and set to build there.
     #file(MAKE_DIRECTORY ${build_dir_uno})
