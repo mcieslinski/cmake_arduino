@@ -70,17 +70,17 @@
 #   -U flash:w:arduino_blink.hex
 #
 cmake_minimum_required(VERSION 2.6)
+#include(../cmake_modules/arduino.cmake)
 
 #set(CMAKE_C_COMPILER_WORKS TRUE)
 #set(CMAKE_CXX_COMPILER_WORKS TRUE)
-#set(CMAKE_SYSTEM_NAME Generic)
+set(CMAKE_SYSTEM_NAME Generic)
 # Look up CMake "toolchain file"
-#set(CMAKE_CROSSCOMPILING TRUE)
-#set(CMAKE_C_COMPILER "avr-gcc")
-#set(CMAKE_CXX_COMPILER "avr-g++")
+set(CMAKE_CROSSCOMPILING TRUE)
+set(CMAKE_C_COMPILER "avr-gcc")
+set(CMAKE_CXX_COMPILER "avr-g++")
 
 project(arduino_blink)
-set(~/cmake_arduino/cmake_modules/arduino_toolchain.cmake)
 set(arduino_sources arduino_blink.c)
 
 # Store the original values of CMAKE_C_OPTIONS
@@ -88,19 +88,3 @@ set(arduino_sources arduino_blink.c)
 #set(LIBRARY_OUTPUT_PATH_ORIG ${LIBRARY_OUTPUT_PATH})
 #set(CMAKE_C_OPTIONS_ORIG ${CMAKE_C_OPTIONS})
 
-# Make a build directory for Arduino Uno rev3 and set to build there.
-set(build_dir_uno_rev3 "arduino_uno_rev3")
-file(MAKE_DIRECTORY ${build_dir_uno_rev3})
-set(EXECUTABLE_OUTPUT_PATH "${PROJECT_BINARY_DIR}/${build_dir_uno_rev3}")
-set(LIBRARY_OUTPUT_PATH "${PROJECT_BINARY_DIR}/${build_dir_uno_rev3}")
-set(output_name_uno_rev3 "${PROJECT_NAME}_uno_rev3")
-set(CMAKE_C_FLAGS "-Os -DF_CPU=16000000UL -mmcu=atmega328p")
-set(CMAKE_SHARED_LIBRARY_LINK_C_FLAGS "")
-set(CMAKE_SHARED_LIBRARY_LINK_CXX_FLAGS "")
-add_executable(${output_name_uno_rev3} ${arduino_sources})
-
-add_custom_command(TARGET ${output_name_uno_rev3} POST_BUILD
-                   COMMAND avr-objcopy -O ihex -R .eeprom ${output_name_uno_rev3} ${output_name_uno_rev3}.hex)
-
-add_custom_target(install_${output_name_uno_rev3}
-                  COMMAND avrdude -F -V -c arduino -p ATMEGA328P -P /dev/ttyACM0 -b 115200 -U flash:w:${output_name_uno_rev3}.hex)

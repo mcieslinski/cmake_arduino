@@ -1,7 +1,11 @@
 #==============================================================================================
-# File:         arduino.cmake
+#
+# File:         arduino_uno_rev3.cmake
 # Author:       Michael R. Cieslinski, Jr.
-# Description:  A set of gcc/g++ settings for using CMake with various arduino boards.
+# Description:  CMake settings for Arduino Uno Rev. 3.
+# Usage:        Include the arduino.cmake, not this file directly. From there, select
+#               build_arduino_uno_rev3 ON.
+#
 #==============================================================================================
 
 #
@@ -70,41 +74,36 @@
 #   -U flash:w:arduino_blink.hex
 #
 
-option(build_uno        "Create files for Arduino Uno." off)
-option(build_zero       "Create files for Arduino Zero." off)
-option(build_mega_2560  "Create files for Arduino Mega 2560." off)
+#if(not ${arduino_cmake_used})
+#    message(FATAL_ERROR "Base arduino.cmake file not used, meaning you probably used this directly.\n
+#                         Don't do that. That's not how this is meant to work.\n
+#                         Include the arduino.cmake file in your base CMakeLists.txt like it says to do.")
+#endif()
 
-set(targets_to_build    "Building files for:")
-set(path_to_uno "/dev/ttyUSB0" CACHE TYPE STRING)
-set(build_dir_uno       "arduino_uno")
-#set(build_dir_zero      "arduino_zero")
-#set(build_dir_mega_2560 "arduino_mega_2560")
+if(${build_uno_rev3})
+    set(path_to_uno_rev3         "/dev/ttyUSB0" CACHE TYPE STRING)
+    set(build_dir_uno_rev3       "arduino_uno")
 
-if(build_uno)
-    # Add a line for printing that Arduino Uno is being built.
-    set(targets_to_build "${targets_to_build} \n  --Arduino Uno")
+# Add a line for printing that Arduino Uno Rev. 3 is being built.
+    set(arduino_targets_to_build "${arduino_targets_to_build} \n  --Arduino Uno Rev. 3")
 
+# Make a build directory for Arduino Uno rev3 and set to build there.
+    set(build_dir_uno_rev3 "arduino_uno_rev3")
+    file(MAKE_DIRECTORY ${build_dir_uno_rev3})
+    set(EXECUTABLE_OUTPUT_PATH "${PROJECT_BINARY_DIR}/${build_dir_uno_rev3}")
+    set(LIBRARY_OUTPUT_PATH "${PROJECT_BINARY_DIR}/${build_dir_uno_rev3}")
+    set(output_name_uno_rev3 "${PROJECT_NAME}_uno_rev3")
 
-    # Make a build directory for Arduino Uno and set to build there.
-    #file(MAKE_DIRECTORY ${build_dir_uno})
-    #set(EXECUTABLE_OUTPUT_PATH "${PROJECT_BINARY_DIR}/${build_dir_uno}")
-    #set(LIBRARY_OUTPUT_PATH "${PROJECT_BINARY_DIR}/${build_dir_uno}")
-    #set(output_name_uno "${PROJECT_NAME}_uno")
-    #set(CMAKE_CXX_OPTIONS "-std=c99 -Os -DF_CPU=16000000UL -mmcu=atmega328p")
-    #add_library(${output_name_uno}.o STATIC ${arduino_sources})
-    #target_compile_options(${output_name_uno}.o -Os -DF_CPU=16000000UL -mmcu=atmega328p)
+# Set C/C++ flags for compiler.
+    set(CMAKE_C_FLAGS   "-Os -DF_CPU=16000000UL -mmcu=atmega328p")
+    set(CMAKE_CXX_FLAGS "-Os -DF_CPU=16000000UL -mmcu=atmega328p")
+    set(CMAKE_SHARED_LIBRARY_LINK_C_FLAGS "")
+    set(CMAKE_SHARED_LIBRARY_LINK_CXX_FLAGS "")
+    add_executable(${output_name_uno_rev3} ${arduino_sources})
+
+    add_custom_command(TARGET ${output_name_uno_rev3} POST_BUILD
+                       COMMAND avr-objcopy -O ihex -R .eeprom ${output_name_uno_rev3} ${output_name_uno_rev3}.hex)
+
+    add_custom_target(install_${output_name_uno_rev3}
+                      COMMAND avrdude -F -V -c arduino -p ATMEGA328P -P /dev/ttyACM0 -b 115200 -U flash:w:${output_name_uno_rev3}.hex)
 endif()
-
-# if(build_zero)
-#     set(targets_to_build "${targets_to_build} \n  --Arduino Zero")
-#     set(output_name_zero "${PROJECT_NAME}_zero")
-#     file(MAKE_DIRECTORY ${build_dir_zero})
-# endif()
-# 
-# if(build_mega_2560)
-#     set(targets_to_build "${targets_to_build} \n  --Arduino Mega 2560")
-#     set(output_name_mega_2560 "${PROJECT_NAME}_mega_2560")
-#     file(MAKE_DIRECTORY ${build_dir_mega_2560})
-# endif()
-
-message(${targets_to_build})
