@@ -1,2 +1,0 @@
-/home/michael/arduino/arduino_cmake_test/build/CMakeFiles/arduino_blink_uno_rev3.dir
-/home/michael/arduino/arduino_cmake_test/build/CMakeFiles/install_arduino_blink_uno_rev3.dir
