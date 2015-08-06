@@ -1,27 +1,33 @@
-# Arduino Uno Rev. 3 Cross-Compiling Notes
+# Arduino Mega 2560 Cross-Compiling Notes
 
-This file contains the commands used to get a blink program working on the Arduino Uno Rev. 3 with
-an Atmel [ATmega328p](http://www.atmel.com/devices/ATMEGA328P.aspx) microcontroller onboard. These commands were stolen and modified from
+This file contains the commands used to get a blink program working on the Arduino Mega with
+an Atmel [ATmega2560](http://www.atmel.com/devices/ATMEGA2560.aspx) microcontroller onboard. These commands were stolen and modified from
 [here](https://balau82.wordpress.com/2011/03/29/programming-arduino-uno-in-pure-c/).
 
-Figuring out what each of these things did was done by me, and this is all for learning purposes for those who aren't so enchanted with the Arduino IDE or just want to learn what happens
-under the sheets.
+Figuring out what each of these things did was done by me, and this is all for learning purposes for those who aren't so enchanted with the Arduino IDE or just want to learn what happens under the sheets.
 
 
-### Commands used to get blink working (ATMega328p):
+### Commands used to get blink working (ATMega2560):
 
 ```
-avr-gcc -Os -DF_CPU=16000000UL -mmcu=atmega328p -c -o arduino_blink.o arduino_blink.c
-avr-gcc -mmcu=atmega328p arduino_blink.o -o arduino_blink
+avr-gcc -Os -DF_CPU=16000000UL -mmcu=atmega2560 -c -o arduino_blink.o arduino_blink.c
+avr-gcc -mmcu=atmega2560 arduino_blink.o -o arduino_blink
 avr-objcopy -O ihex -R .eeprom arduino_blink arduino_blink.hex
-avrdude -F -V -c arduino -p ATMEGA328P -P /dev/ttyACM0 -b 115200 -U flash:w:arduino_blink.hex
+avrdude -F -V -c stk500v2 -p ATMEGA2560 -P /dev/ttyACM0 -b 115200 -U flash:w:arduino_blink.hex
 ```
+
+##### Note:
+
+I have read that `-c stk500v2` might not work for some people. If you have `avrdude` above
+version 5.11, you can apparently replace `-c stk500v2` with `-c wiring` and it will work.
+I tested this series of commands wth `-c wiring`, and it worked for me, although I don't,
+at the moment, understand what `-c wiring` actually is.
 
 ---
 
 ##### avr-gcc first run notes:
 
-`avr-gcc -Os -DF_CPU=16000000UL -mmcu=atmega328p -c -o arduino_blink.o arduino_blink.c`
+`avr-gcc -Os -DF_CPU=16000000UL -mmcu=atmega2560 -c -o arduino_blink.o arduino_blink.c`
 
 - `avr-gcc` - GCC (GNU C Compiler) for AVR microcontrollers.
 
@@ -32,10 +38,10 @@ avrdude -F -V -c arduino -p ATMEGA328P -P /dev/ttyACM0 -b 115200 -U flash:w:ardu
 - `-DXXXX` - (D)efine XXXX
   - `-DF_CPU=16000000UL` - CPU Frequency
     - `16 000 000 UL` - 16 MHz, interpreted as an (U)nsigned (L)ong integer.
-    
+
 
 - `-msomething=value` - (m)achine dependent option something = value
-  - `-mmcu=atmega328p` - (m)achine dependent option (mcu) = (atmega328p)
+  - `-mmcu=atmega2560` - (m)achine dependent option (mcu) = (atmega2560)
 
 
 - `-c` - (c)ompile only, no link
@@ -48,11 +54,11 @@ avrdude -F -V -c arduino -p ATMEGA328P -P /dev/ttyACM0 -b 115200 -U flash:w:ardu
 
 ##### avr-gcc second run notes:
 
-`avr-gcc -mmcu=atmega328p arduino_blink.o -o arduino_blink`
+`avr-gcc -mmcu=atmega2560 arduino_blink.o -o arduino_blink`
 
 
 - `-msomething=value` - (m)achine dependent option something = value
-  - `-mmcu=atmega328p` - (m)achine dependent option (mcu) = (atmega328p)
+  - `-mmcu=atmega2560` - (m)achine dependent option (mcu) = (atmega2560)
 
 
 - `-o file - (o)utput file`
@@ -89,7 +95,7 @@ avrdude -F -V -c arduino -p ATMEGA328P -P /dev/ttyACM0 -b 115200 -U flash:w:ardu
 
 #####avrdude notes:
 
-`avrdude -F -V -c arduino -p ATMEGA328P -P /dev/ttyACM0 -b 115200 -U flash:w:arduino_blink.hex`
+`avrdude -F -V -c arduino -p ATMEGA2560 -P /dev/ttyACM0 -b 115200 -U flash:w:arduino_blink.hex`
 
 - `avrdude` - Command used to program the board.
 
@@ -105,7 +111,7 @@ avrdude -F -V -c arduino -p ATMEGA328P -P /dev/ttyACM0 -b 115200 -U flash:w:ardu
 
 
 - `-p partno` - Target (p)art partno.
-  - `-p ATMEGA328P` - Target the ATMega328p.
+  - `-p ATMEGA2560` - Target the ATMega2560.
 
 
 - `-P /path/to/port` - Serial (P)ort to use for uploading file.
